@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(RKTopUpApp());
+
+class RKTopUpApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'RK top up',
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      home: HomeScreen(),
+    );
+  }
+}
+
+// হোম স্ক্রিন যেখানে বক্সগুলো থাকবে
+class HomeScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> categories = [
+    {
+      'name': 'UID Topup',
+      'icon': Icons.flash_on,
+      'items': ['১০০ ডায়মন্ড - ৮০ টাকা', '৫০০ ডায়মন্ড - ৩৮০ টাকা', '১০০০ ডায়মন্ড - ৭৫০ টাকা']
+    },
+    {
+      'name': 'Level Up Pass',
+      'icon': Icons.trending_up,
+      'items': ['Level Up Pass - ১৬০ টাকা']
+    },
+    {
+      'name': 'Weekly Membership',
+      'icon': Icons.calendar_view_week,
+      'items': ['১টি উইকলি - ১৯০ টাকা', '৫টি উইকলি - ৯৩০ টাকা']
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('RK top up')),
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PackageListScreen(
+                      categoryName: categories[index]['name'],
+                      items: categories[index]['items'],
+                    ),
+                  ),
+                );
+              },
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(categories[index]['icon'], size: 50, color: Colors.deepPurple),
+                    SizedBox(height: 10),
+                    Text(categories[index]['name'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// প্যাকেজ লিস্ট স্ক্রিন
+class PackageListScreen extends StatelessWidget {
+  final String categoryName;
+  final List<String> items;
+
+  PackageListScreen({required this.categoryName, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(categoryName)),
+      body: ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          return Card(
+            margin: EdgeInsets.all(8),
+            child: ListTile(
+              title: Text(items[index]),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PaymentScreen(packageName: items[index])),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// পেমেন্ট স্ক্রিন
+class PaymentScreen extends StatelessWidget {
+  final String packageName;
+  final TextEditingController idController = TextEditingController();
+
+  PaymentScreen({required this.packageName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Payment')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('প্যাকেজ: $packageName', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            TextField(
+              controller: idController,
+              decoration: InputDecoration(labelText: 'গেম UID লিখুন'),
+            ),
+            SizedBox(height: 20),
+            Text('পেমেন্ট মেথড বেছে নিন:', style: TextStyle(fontSize: 16)),
+            ListTile(
+              leading: Icon(Icons.account_balance_wallet, color: Colors.pink),
+              title: Text('বিকাশ (Personal)'),
+              subtitle: Text('নম্বর: ০১৬XX-XXXXXX'), // আপনার নম্বর এখানে বসাবেন
+            ),
+            ListTile(
+              leading: Icon(Icons.account_balance_wallet, color: Colors.orange),
+              title: Text('নগদ (Personal)'),
+              subtitle: Text('নম্বর: ০১৯XX-XXXXXX'), // আপনার নম্বর এখানে বসাবেন
+            ),
+            Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // এখানে ডাটাবেসে তথ্য পাঠানোর কোড হবে
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('অর্ডার সফল!'),
+                      content: Text('আপনার অর্ডারটি গ্রহণ করা হয়েছে। কিছুক্ষণ অপেক্ষা করুন।'),
+                      actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('ঠিক আছে'))],
+                    ),
+                  );
+                },
+                child: Text('অর্ডার সাবমিট করুন'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
